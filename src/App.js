@@ -36,7 +36,7 @@ const App = () => {
   };
 
   return (
-    <div className="App">
+    <div class="body">
       <h1>The Green Diary</h1>
       <form onSubmit={handleSubmit}>
         <input
