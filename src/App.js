@@ -1,14 +1,16 @@
-// import logo from './logo.svg';
+import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from './api';
 import './App.css';
+import EntryDetail from './EntryDetail';
 
 const App = () => {
   const [entry, setEntry] = useState([]);
   const [newEntry, setNewEntry] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/green_diary/')
+    axios.get('green_diary/')
       .then(response => {
         setEntry(response.data);
       })
@@ -18,7 +20,7 @@ const App = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (newEntry.trim() !== "") {
-      axios.post('http://localhost:8000/api/green_diary/', { text: newEntry })
+      axios.post('green_diary/', { text: newEntry })
         .then(response => {
           setEntry([response.data, ...entry]);
           setNewEntry("");
@@ -27,8 +29,19 @@ const App = () => {
     }
   };
 
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+
+    axios.get(`green_diary/?search=${query}`)
+    .then(response => {
+      setEntry(response.data);
+    })
+    .catch(error => console.error("There was an error searching the entry data", error));
+  };
+
   const handleDelete = (id) => {
-    axios.delete(`http://localhost:8000/api/green_diary/${id}/`)
+    axios.delete(`green_diary/${id}/`)
       .then(() => {
         setEntry(entry.filter(entry => entry.id !== id));
       })
@@ -48,6 +61,13 @@ const App = () => {
         <button type="submit">Send Entry</button>
       </form>
 
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={handleSearch}
+        placeholder="Search entries by title or text"
+      />
+
       <ul>
         {entry.map((entry) => (
           <li key={entry.id}>
@@ -57,7 +77,7 @@ const App = () => {
         ))}
       </ul>
 
-      <h1>{entry.text}</h1>
+      <h1>{entry.length}</h1>
 
     </div>
   );
