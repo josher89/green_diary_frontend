@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParam } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import axios from './api';
 
 const EntryDetail = () => {
-    const { id } = useParam();
+    const { id } = useParams();
     const [ entry, setEntry ] = useState(null);
 
     useEffect(() => {

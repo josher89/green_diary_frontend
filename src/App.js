@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import axios from './api';
 import './App.css';
@@ -12,6 +12,8 @@ const App = () => {
   useEffect(() => {
     axios.get('green_diary/')
       .then(response => {
+        // Remove this line after debuggig:
+        console.log(response.data);
         setEntry(response.data);
       })
       .catch(error => console.error("There was an error fetching the entry data", error));
@@ -22,6 +24,8 @@ const App = () => {
     if (newEntry.trim() !== "") {
       axios.post('green_diary/', { text: newEntry })
         .then(response => {
+          // Remove this line after debugging:
+          console.log(response.data);
           setEntry([response.data, ...entry]);
           setNewEntry("");
         })
@@ -40,6 +44,14 @@ const App = () => {
     .catch(error => console.error("There was an error searching the entry data", error));
   };
 
+  const handleSearchSubmit = () => {
+    axios.get(`green_diary/?search=${searchQuery}`)
+    .then(response => {
+      setEntry(response.data);
+    })
+    .catch(error => console.error("Error searching entries", error));
+  };
+
   const handleDelete = (id) => {
     axios.delete(`green_diary/${id}/`)
       .then(() => {
@@ -49,8 +61,9 @@ const App = () => {
   };
 
   return (
-    <div class="body">
+    <div className="body">
       <h1>The Green Diary</h1>
+
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -61,26 +74,37 @@ const App = () => {
         <button type="submit">Send Entry</button>
       </form>
 
-      <input
-        type="text"
-        value={searchQuery}
-        onChange={handleSearch}
-        placeholder="Search entries by title or text"
-      />
+      <form onSubmit={(e) => { e.preventDefault(); handleSearchSubmit(); }}>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={handleSearch}
+          placeholder="Search entries by title or text"
+        />
+        <button type="submit">Search</button>
+      </form>
 
       <ul>
         {entry.map((entry) => (
           <li key={entry.id}>
-            {entry.text} - {new Date(entry.timestamp).toLocaleString()}
+            <Link to={`/entry/${entry.id}`}>
+              {entry.text} - {new Date(entry.timestamp).toLocaleString()}
+            </Link>
             <button onClick={() => handleDelete(entry.id)}>Delete entry</button>
           </li>
         ))}
       </ul>
-
-      <h1>{entry.length}</h1>
-
     </div>
   );
-}
+};
 
-export default App;
+const MainApp = () => (
+  <Router>
+    <Routes>
+        <Route path="/" element={<App />} />
+        <Route path="/entry/:id" element={<EntryDetail />} />
+    </Routes>
+  </Router>
+)
+
+export default MainApp;
