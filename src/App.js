@@ -8,6 +8,9 @@ const App = () => {
   const [entry, setEntry] = useState([]);
   const [newEntry, setNewEntry] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  // New code
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
 
   useEffect(() => {
     axios.get('green_diary/')
@@ -44,13 +47,26 @@ const App = () => {
     .catch(error => console.error("There was an error searching the entry data", error));
   };
 
-  const handleSearchSubmit = () => {
-    axios.get(`green_diary/?search=${searchQuery}`)
-    .then(response => {
-      setEntry(response.data);
-    })
+  // New code
+  const handleFilterSubmit = () => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.append("search", searchQuery);
+    if (month) params.append("month", month);
+    if (year) params.append("year", year);
+
+    axios.get(`green_diary/?${params.toString()}`)
+    .then(response => setEntry(response.data))
     .catch(error => console.error("Error searching entries", error));
   };
+
+  // Old code
+  // const handleSearchSubmit = () => {
+  //   axios.get(`green_diary/?search=${searchQuery}`)
+  //   .then(response => {
+  //     setEntry(response.data);
+  //   })
+  //   .catch(error => console.error("Error searching entries", error));
+  // };
 
   const handleDelete = (id) => {
     axios.delete(`green_diary/${id}/`)
@@ -74,14 +90,39 @@ const App = () => {
         <button type="submit">Send Entry</button>
       </form>
 
-      <form onSubmit={(e) => { e.preventDefault(); handleSearchSubmit(); }}>
+      <form onSubmit={(e) => { e.preventDefault(); handleFilterSubmit(); }}> {/*handleSearchSubmit() was commented out.*/}
         <input
           type="text"
           value={searchQuery}
           onChange={handleSearch}
           placeholder="Search entries by title or text"
         />
-        <button type="submit">Search</button>
+
+        <select value={month} onChange={(e) => setMonth(e.target.value)}>
+            <option value="">Select Month</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+
+          <select value={year} onChange={(e) => setYear(e.target.value)}>
+            <option value="">Select Year</option>
+            <option value="2022">2022</option>
+            <option value="2023">2023</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+          </select>
+
+        <button type="submit">Filter</button>
       </form>
 
       <ul>
