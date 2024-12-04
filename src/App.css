@@ -3,3 +3,8 @@
   display: flex;
   background-color: gray;
 }
+
+.entryBody {
+  display: center;
+  background-color: darkslategray;
+}

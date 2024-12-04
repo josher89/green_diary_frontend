@@ -40,11 +40,14 @@ const App = () => {
     const query = e.target.value;
     setSearchQuery(query);
 
-    axios.get(`green_diary/?search=${query}`)
-    .then(response => {
-      setEntry(response.data);
-    })
-    .catch(error => console.error("There was an error searching the entry data", error));
+    if (query.trim() !== "") {
+      axios.get(`green_diary/?search=${query}`)
+      .then(response => {
+        setEntry(response.data);
+      })
+      .catch(error => console.error("There was an error searching the entry data", error)
+      );
+    }
   };
 
   // New code
@@ -69,7 +72,7 @@ const App = () => {
   // };
 
   const handleDelete = (id) => {
-    axios.delete(`green_diary/${id}/`)
+    axios.delete(`green_diary/${id}/delete/`)
       .then(() => {
         setEntry(entry.filter(entry => entry.id !== id));
       })
