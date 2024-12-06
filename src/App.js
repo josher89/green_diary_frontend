@@ -3,38 +3,35 @@ import React, { useState, useEffect } from 'react';
 import axios from './api';
 import './App.css';
 import EntryDetail from './EntryDetail';
+import EntryForm from './EntryForm';
 
 const App = () => {
   const [entry, setEntry] = useState([]);
-  const [newEntry, setNewEntry] = useState("");
+  //const [newEntry, setNewEntry] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  // New code
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
 
   useEffect(() => {
     axios.get('green_diary/')
       .then(response => {
-        // Remove this line after debuggig:
-        console.log(response.data);
         setEntry(response.data);
       })
       .catch(error => console.error("There was an error fetching the entry data", error));
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (newEntry.trim() !== "") {
-      axios.post('green_diary/', { text: newEntry })
-        .then(response => {
-          // Remove this line after debugging:
-          console.log(response.data);
-          setEntry([response.data, ...entry]);
-          setNewEntry("");
-        })
-        .catch(error => console.error("There was an error fetching the entry data", error));
-    }
-  };
+  // should I erase this?
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   if (newEntry.trim() !== "") {
+  //     axios.post('green_diary/', { text: newEntry })
+  //       .then(response => {
+  //         setEntry([response.data, ...entry]);
+  //         setNewEntry("");
+  //       })
+  //       .catch(error => console.error("There was an error fetching the entry data", error));
+  //   }
+  // };
 
   const handleSearch = (e) => {
     const query = e.target.value;
@@ -50,7 +47,6 @@ const App = () => {
     }
   };
 
-  // New code
   const handleFilterSubmit = () => {
     const params = new URLSearchParams();
     if (searchQuery) params.append("search", searchQuery);
@@ -61,15 +57,6 @@ const App = () => {
     .then(response => setEntry(response.data))
     .catch(error => console.error("Error searching entries", error));
   };
-
-  // Old code
-  // const handleSearchSubmit = () => {
-  //   axios.get(`green_diary/?search=${searchQuery}`)
-  //   .then(response => {
-  //     setEntry(response.data);
-  //   })
-  //   .catch(error => console.error("Error searching entries", error));
-  // };
 
   const handleDelete = (id) => {
     axios.delete(`green_diary/${id}/delete/`)
@@ -83,7 +70,10 @@ const App = () => {
     <div className="body">
       <h1>The Green Diary</h1>
 
-      <form onSubmit={handleSubmit}>
+      <EntryForm entries={entry} setEntries={setEntry} />
+
+      {/* should I insert the EntryForm component here? */}
+      {/* <form onSubmit={handleSubmit}>
         <input
           type="text"
           value={newEntry}
@@ -91,9 +81,9 @@ const App = () => {
           placeholder="Write your thoughts down"
         />
         <button type="submit">Send Entry</button>
-      </form>
+      </form> */}
 
-      <form onSubmit={(e) => { e.preventDefault(); handleFilterSubmit(); }}> {/*handleSearchSubmit() was commented out.*/}
+      <form onSubmit={(e) => { e.preventDefault(); handleFilterSubmit(); }}>
         <input
           type="text"
           value={searchQuery}
