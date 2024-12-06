@@ -4,13 +4,11 @@ import axios from './api';
 import './App.css';
 import EntryDetail from './EntryDetail';
 import EntryForm from './EntryForm';
+import EntrySearchText from './EntrySearchText';
 
 const App = () => {
   const [entry, setEntry] = useState([]);
-  //const [newEntry, setNewEntry] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [month, setMonth] = useState("");
-  const [year, setYear] = useState("");
 
   useEffect(() => {
     axios.get('green_diary/')
@@ -19,44 +17,6 @@ const App = () => {
       })
       .catch(error => console.error("There was an error fetching the entry data", error));
   }, []);
-
-  // should I erase this?
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   if (newEntry.trim() !== "") {
-  //     axios.post('green_diary/', { text: newEntry })
-  //       .then(response => {
-  //         setEntry([response.data, ...entry]);
-  //         setNewEntry("");
-  //       })
-  //       .catch(error => console.error("There was an error fetching the entry data", error));
-  //   }
-  // };
-
-  const handleSearch = (e) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-
-    if (query.trim() !== "") {
-      axios.get(`green_diary/?search=${query}`)
-      .then(response => {
-        setEntry(response.data);
-      })
-      .catch(error => console.error("There was an error searching the entry data", error)
-      );
-    }
-  };
-
-  const handleFilterSubmit = () => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.append("search", searchQuery);
-    if (month) params.append("month", month);
-    if (year) params.append("year", year);
-
-    axios.get(`green_diary/?${params.toString()}`)
-    .then(response => setEntry(response.data))
-    .catch(error => console.error("Error searching entries", error));
-  };
 
   const handleDelete = (id) => {
     axios.delete(`green_diary/${id}/delete/`)
@@ -72,59 +32,19 @@ const App = () => {
 
       <EntryForm entries={entry} setEntries={setEntry} />
 
-      {/* should I insert the EntryForm component here? */}
-      {/* <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={newEntry}
-          onChange={(e) => setNewEntry(e.target.value)}
-          placeholder="Write your thoughts down"
-        />
-        <button type="submit">Send Entry</button>
-      </form> */}
-
-      <form onSubmit={(e) => { e.preventDefault(); handleFilterSubmit(); }}>
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={handleSearch}
-          placeholder="Search entries by title or text"
-        />
-
-        <select value={month} onChange={(e) => setMonth(e.target.value)}>
-            <option value="">Select Month</option>
-            <option value="1">January</option>
-            <option value="2">February</option>
-            <option value="3">March</option>
-            <option value="4">April</option>
-            <option value="5">May</option>
-            <option value="6">June</option>
-            <option value="7">July</option>
-            <option value="8">August</option>
-            <option value="9">September</option>
-            <option value="10">October</option>
-            <option value="11">November</option>
-            <option value="12">December</option>
-          </select>
-
-          <select value={year} onChange={(e) => setYear(e.target.value)}>
-            <option value="">Select Year</option>
-            <option value="2022">2022</option>
-            <option value="2023">2023</option>
-            <option value="2024">2024</option>
-            <option value="2025">2025</option>
-          </select>
-
-        <button type="submit">Filter</button>
-      </form>
+      <EntrySearchText 
+        searchText={searchQuery} 
+        setSearchText={setSearchQuery} 
+        setEntries={setEntry}
+      />
 
       <ul>
-        {entry.map((entry) => (
-          <li key={entry.id}>
-            <Link to={`/entry/${entry.id}`}>
-              {entry.text} - {new Date(entry.timestamp).toLocaleString()}
+        {entry.map((item) => (
+          <li key={item.id}>
+            <Link to={`/entry/${item.id}`}>
+              {item.text} - {new Date(item.timestamp).toLocaleString()}
             </Link>
-            <button onClick={() => handleDelete(entry.id)}>Delete entry</button>
+            <button onClick={() => handleDelete(item.id)}>Delete entry</button>
           </li>
         ))}
       </ul>
